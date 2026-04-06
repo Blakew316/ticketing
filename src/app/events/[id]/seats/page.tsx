@@ -9,14 +9,12 @@ import {
   Clock,
   MapPin,
   ShoppingCart,
-  Info,
   Minus,
 } from "lucide-react";
 import Link from "next/link";
 import { getEvent } from "@/lib/events-data";
-import { Section, Row, Seat } from "@/lib/types";
-import VenueMap from "@/components/venue/VenueMap";
-import SeatGrid from "@/components/venue/SeatGrid";
+import { VenueRow, Seat } from "@/lib/types";
+import SeatPicker from "@/components/venue/SeatPicker";
 import { useCart } from "@/lib/use-cart";
 
 function formatDate(dateStr: string) {
@@ -31,12 +29,10 @@ function formatDate(dateStr: string) {
 
 interface SelectedSeatInfo {
   seatId: string;
-  sectionId: string;
-  sectionName: string;
-  sectionType: string;
   rowLabel: string;
   seatNumber: number;
   price: number;
+  tier: string;
 }
 
 export default function SeatSelectionPage() {
@@ -45,8 +41,9 @@ export default function SeatSelectionPage() {
   const event = getEvent(params.id as string);
   const cart = useCart();
 
-  const [selectedSection, setSelectedSection] = useState<Section | null>(null);
-  const [selectedSeats, setSelectedSeats] = useState<Map<string, SelectedSeatInfo>>(new Map());
+  const [selectedSeats, setSelectedSeats] = useState<
+    Map<string, SelectedSeatInfo>
+  >(new Map());
 
   const selectedSeatIds = useMemo(
     () => new Set(selectedSeats.keys()),
@@ -54,32 +51,30 @@ export default function SeatSelectionPage() {
   );
 
   const handleToggleSeat = useCallback(
-    (fullId: string, row: Row, seat: Seat) => {
-      if (!selectedSection) return;
+    (fullId: string, row: VenueRow, seat: Seat) => {
       setSelectedSeats((prev) => {
         const next = new Map(prev);
         if (next.has(fullId)) {
           next.delete(fullId);
         } else {
-          if (next.size >= 8) return prev; // max 8 tickets
+          if (next.size >= 8) return prev;
           next.set(fullId, {
             seatId: fullId,
-            sectionId: selectedSection.id,
-            sectionName: selectedSection.name,
-            sectionType: selectedSection.type,
             rowLabel: row.label,
             seatNumber: seat.number,
-            price: selectedSection.price,
+            price: row.price,
+            tier: row.tier,
           });
         }
         return next;
       });
     },
-    [selectedSection]
+    []
   );
 
   const totalPrice = useMemo(
-    () => Array.from(selectedSeats.values()).reduce((sum, s) => sum + s.price, 0),
+    () =>
+      Array.from(selectedSeats.values()).reduce((sum, s) => sum + s.price, 0),
     [selectedSeats]
   );
 
@@ -93,12 +88,11 @@ export default function SeatSelectionPage() {
         date: event.date,
         time: event.time,
         venue: event.venue.name,
-        sectionName: info.sectionName,
-        sectionType: info.sectionType,
         rowLabel: info.rowLabel,
         seatNumber: info.seatNumber,
         seatId: info.seatId,
         price: info.price,
+        tier: info.tier,
       });
     });
     router.push("/checkout");
@@ -108,8 +102,8 @@ export default function SeatSelectionPage() {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
-          <h2 className="text-2xl font-bold mb-2">Event Not Found</h2>
-          <Link href="/" className="text-primary-light hover:underline">
+          <h2 className="text-xl font-semibold mb-2">Event Not Found</h2>
+          <Link href="/" className="text-sm text-primary-light hover:underline">
             Back to events
           </Link>
         </div>
@@ -119,98 +113,80 @@ export default function SeatSelectionPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
-      {/* Back nav + Event info */}
+      {/* Header */}
       <div className="mb-6">
         <Link
           href="/"
-          className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-foreground transition-colors mb-4"
+          className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-foreground transition-colors mb-3"
         >
-          <ArrowLeft className="h-4 w-4" /> Back to events
+          <ArrowLeft className="h-3.5 w-3.5" /> Back to events
         </Link>
 
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold">{event.name}</h1>
-            <p className="text-primary-light font-medium mt-1">{event.artist}</p>
-            <div className="flex flex-wrap gap-4 mt-2 text-sm text-muted">
-              <span className="flex items-center gap-1.5">
-                <Calendar className="h-3.5 w-3.5" /> {formatDate(event.date)}
+            <h1 className="text-2xl font-bold">{event.name}</h1>
+            <p className="text-sm text-primary-light mt-0.5">{event.artist}</p>
+            <div className="flex flex-wrap gap-3 mt-2 text-xs text-muted">
+              <span className="flex items-center gap-1">
+                <Calendar className="h-3 w-3" /> {formatDate(event.date)}
               </span>
-              <span className="flex items-center gap-1.5">
-                <Clock className="h-3.5 w-3.5" /> {event.time}
+              <span className="flex items-center gap-1">
+                <Clock className="h-3 w-3" /> {event.time}
               </span>
-              <span className="flex items-center gap-1.5">
-                <MapPin className="h-3.5 w-3.5" /> {event.venue.name}
+              <span className="flex items-center gap-1">
+                <MapPin className="h-3 w-3" /> {event.venue.name}
               </span>
             </div>
           </div>
-          <div className="text-sm text-muted flex items-start gap-1.5">
-            <Info className="h-4 w-4 shrink-0 mt-0.5" />
-            Click a section on the map, then select your seats
-          </div>
+          <p className="text-xs text-muted">
+            Click seats to select &middot; Max 8 per order
+          </p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left: Venue map + Seat grid */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Venue Map */}
-          <div className="rounded-2xl border border-border bg-surface p-4 sm:p-6">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-muted mb-4">
-              Select a Section
-            </h2>
-            <VenueMap
-              sections={event.venue.sections}
-              selectedSectionId={selectedSection?.id ?? null}
-              onSelectSection={setSelectedSection}
-            />
-          </div>
-
-          {/* Seat Grid */}
-          <AnimatePresence mode="wait">
-            {selectedSection && (
-              <SeatGrid
-                key={selectedSection.id}
-                section={selectedSection}
-                selectedSeats={selectedSeatIds}
-                onToggleSeat={handleToggleSeat}
-                onClose={() => setSelectedSection(null)}
-              />
-            )}
-          </AnimatePresence>
+        {/* Seat Map */}
+        <div className="lg:col-span-2">
+          <SeatPicker
+            rows={event.venue.rows}
+            selectedSeats={selectedSeatIds}
+            onToggleSeat={handleToggleSeat}
+          />
         </div>
 
-        {/* Right: Selection summary / mini-cart */}
+        {/* Selection Summary */}
         <div className="lg:col-span-1">
-          <div className="sticky top-20 rounded-2xl border border-border bg-surface p-5">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-muted mb-4">
+          <div className="sticky top-20 rounded-xl border border-border bg-surface-light p-5">
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-muted mb-4">
               Your Selection
             </h2>
 
             {selectedSeats.size === 0 ? (
-              <div className="py-8 text-center text-sm text-muted">
-                <ShoppingCart className="mx-auto h-10 w-10 mb-3 opacity-30" />
-                <p>No seats selected yet.</p>
-                <p className="mt-1 text-xs">
-                  Select a section and pick your seats.
+              <div className="py-10 text-center text-sm text-muted">
+                <ShoppingCart className="mx-auto h-8 w-8 mb-2 opacity-20" />
+                <p>No seats selected</p>
+                <p className="mt-1 text-xs text-zinc-600">
+                  Pick your seats from the map
                 </p>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <AnimatePresence>
                   {Array.from(selectedSeats.values()).map((info) => (
                     <motion.div
                       key={info.seatId}
-                      initial={{ opacity: 0, x: 20 }}
+                      initial={{ opacity: 0, x: 16 }}
                       animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      className="flex items-center justify-between rounded-lg bg-surface-light p-3"
+                      exit={{ opacity: 0, x: -16 }}
+                      className="flex items-center justify-between rounded-lg bg-surface-lighter px-3 py-2.5"
                     >
                       <div className="text-sm">
-                        <div className="font-medium">{info.sectionName}</div>
-                        <div className="text-xs text-muted">
-                          Row {info.rowLabel} &middot; Seat {info.seatNumber}
-                        </div>
+                        <span className="font-medium">
+                          Row {info.rowLabel}, Seat {info.seatNumber}
+                        </span>
+                        <span className="ml-2 text-xs text-muted capitalize">
+                          {info.tier}
+                        </span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-semibold">
@@ -224,9 +200,9 @@ export default function SeatSelectionPage() {
                               return next;
                             })
                           }
-                          className="rounded-full p-1 text-muted hover:bg-danger/20 hover:text-danger transition-colors"
+                          className="rounded p-1 text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300 transition-colors"
                         >
-                          <Minus className="h-3.5 w-3.5" />
+                          <Minus className="h-3 w-3" />
                         </button>
                       </div>
                     </motion.div>
@@ -239,27 +215,23 @@ export default function SeatSelectionPage() {
                       {selectedSeats.size} ticket
                       {selectedSeats.size > 1 ? "s" : ""}
                     </span>
-                    <span className="font-bold text-lg">
+                    <span className="text-lg font-bold">
                       ${totalPrice.toFixed(2)}
                     </span>
                   </div>
-                  <div className="flex justify-between text-xs text-muted mb-4">
-                    <span>+ fees at checkout</span>
-                  </div>
+                  <p className="text-[11px] text-zinc-600 mb-4">
+                    + service fees at checkout
+                  </p>
 
                   <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
+                    whileHover={{ scale: 1.01 }}
+                    whileTap={{ scale: 0.99 }}
                     onClick={handleAddToCart}
-                    className="w-full rounded-xl bg-primary py-3 text-sm font-bold text-white transition-all hover:bg-primary-dark glow-primary"
+                    className="w-full rounded-lg bg-primary py-3 text-sm font-semibold text-white transition-colors hover:bg-primary-dark"
                   >
                     Add to Cart & Checkout
                   </motion.button>
                 </div>
-
-                <p className="text-[10px] text-center text-muted mt-2">
-                  Max 8 tickets per order
-                </p>
               </div>
             )}
           </div>

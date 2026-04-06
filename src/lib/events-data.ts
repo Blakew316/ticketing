@@ -11,7 +11,7 @@ export const events: Event[] = [
     venue: concertHall,
     imageUrl: "",
     genre: "Electronic / Synth-Pop",
-    priceRange: { min: 55, max: 350 },
+    priceRange: { min: 45, max: 250 },
     description:
       "Experience the mesmerizing visuals and ethereal soundscapes of Aurora Vex's Neon Dreams World Tour. This groundbreaking show features immersive 360° projections, live orchestra integration, and tracks from the platinum album 'Neon Dreams'.",
     status: "on-sale",
@@ -25,7 +25,7 @@ export const events: Event[] = [
     venue: concertHall,
     imageUrl: "",
     genre: "Indie Rock",
-    priceRange: { min: 55, max: 350 },
+    priceRange: { min: 45, max: 250 },
     description:
       "The Velvet Wolves return with their critically acclaimed Midnight Echoes Tour. Known for their explosive live performances and anthemic choruses, this show promises to be an unforgettable night of raw energy and emotional depth.",
     status: "on-sale",
@@ -39,7 +39,7 @@ export const events: Event[] = [
     venue: concertHall,
     imageUrl: "",
     genre: "R&B / Soul",
-    priceRange: { min: 55, max: 350 },
+    priceRange: { min: 45, max: 250 },
     description:
       "Grammy-winning artist Jasmine Cole brings her Soul Revival tour to Stellar Arena. With her powerhouse vocals and a 12-piece band, this intimate yet grand performance celebrates the golden age of soul with a modern twist.",
     status: "few-left",
@@ -53,7 +53,7 @@ export const events: Event[] = [
     venue: concertHall,
     imageUrl: "",
     genre: "Hard Rock / Metal",
-    priceRange: { min: 55, max: 350 },
+    priceRange: { min: 45, max: 250 },
     description:
       "The ultimate rock experience featuring six legendary bands on one stage. Thunderstrike Festival brings together icons of hard rock and metal for an all-day extravaganza of face-melting riffs and earth-shaking drums.",
     status: "on-sale",
@@ -67,7 +67,7 @@ export const events: Event[] = [
     venue: concertHall,
     imageUrl: "",
     genre: "Classical / Orchestral",
-    priceRange: { min: 55, max: 350 },
+    priceRange: { min: 45, max: 250 },
     description:
       "The Luna Park Orchestra presents an evening of celestial beauty, performing pieces inspired by the cosmos. From Holst's The Planets to original compositions, this concert weaves together classical mastery with stunning visual accompaniments.",
     status: "on-sale",
@@ -81,7 +81,7 @@ export const events: Event[] = [
     venue: concertHall,
     imageUrl: "",
     genre: "EDM / Bass",
-    priceRange: { min: 55, max: 350 },
+    priceRange: { min: 45, max: 250 },
     description:
       "DJ Phantom's legendary Bass Drop Chronicles tour has sold out arenas worldwide. This high-energy spectacle features cutting-edge sound systems, pyrotechnics, and the most advanced laser show ever assembled for a music tour.",
     status: "sold-out",

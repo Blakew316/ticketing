@@ -1,27 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { Calendar, Clock, MapPin, Music } from "lucide-react";
+import { Calendar, MapPin } from "lucide-react";
 import { Event } from "@/lib/types";
 import { motion } from "framer-motion";
-
-const genreGradients: Record<string, string> = {
-  "Electronic / Synth-Pop": "from-violet-600 via-purple-600 to-fuchsia-600",
-  "Indie Rock": "from-orange-600 via-red-600 to-pink-600",
-  "R&B / Soul": "from-amber-600 via-orange-500 to-rose-600",
-  "Hard Rock / Metal": "from-gray-700 via-red-900 to-gray-900",
-  "Classical / Orchestral": "from-blue-600 via-indigo-600 to-violet-600",
-  "EDM / Bass": "from-cyan-500 via-blue-600 to-purple-700",
-};
-
-const genreIcons: Record<string, string> = {
-  "Electronic / Synth-Pop": "🎹",
-  "Indie Rock": "🎸",
-  "R&B / Soul": "🎤",
-  "Hard Rock / Metal": "🤘",
-  "Classical / Orchestral": "🎻",
-  "EDM / Bass": "🎧",
-};
 
 function formatDate(dateStr: string) {
   const d = new Date(dateStr + "T00:00:00");
@@ -29,7 +11,6 @@ function formatDate(dateStr: string) {
     weekday: "short",
     month: "short",
     day: "numeric",
-    year: "numeric",
   });
 }
 
@@ -40,92 +21,73 @@ export default function EventCard({
   event: Event;
   index: number;
 }) {
-  const gradient =
-    genreGradients[event.genre] || "from-indigo-600 to-purple-600";
-  const icon = genreIcons[event.genre] || "🎵";
+  const isSoldOut = event.status === "sold-out";
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 30 }}
+      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
+      transition={{ duration: 0.4, delay: index * 0.08 }}
     >
-      <Link href={event.status === "sold-out" ? "#" : `/events/${event.id}/seats`}>
+      <Link href={isSoldOut ? "#" : `/events/${event.id}/seats`}>
         <div
-          className={`group relative overflow-hidden rounded-2xl border border-border bg-surface transition-all duration-300 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10 ${
-            event.status === "sold-out" ? "opacity-60 cursor-not-allowed" : ""
+          className={`group relative overflow-hidden rounded-xl border border-border bg-surface-light transition-all duration-200 hover:border-zinc-600 hover:bg-surface-lighter ${
+            isSoldOut ? "opacity-50 cursor-not-allowed" : ""
           }`}
         >
-          {/* Gradient Banner */}
-          <div
-            className={`relative h-48 bg-gradient-to-br ${gradient} flex items-center justify-center overflow-hidden`}
-          >
-            <div className="absolute inset-0 bg-black/20" />
-            <span className="relative text-7xl transition-transform duration-500 group-hover:scale-125">
-              {icon}
-            </span>
-            {/* Status Badge */}
-            <div className="absolute top-3 right-3">
-              {event.status === "on-sale" && (
-                <span className="rounded-full bg-success/90 px-3 py-1 text-xs font-bold text-white backdrop-blur-sm">
-                  On Sale
-                </span>
-              )}
-              {event.status === "few-left" && (
-                <span className="rounded-full bg-accent/90 px-3 py-1 text-xs font-bold text-white backdrop-blur-sm animate-pulse">
-                  Few Left!
-                </span>
-              )}
-              {event.status === "sold-out" && (
-                <span className="rounded-full bg-danger/90 px-3 py-1 text-xs font-bold text-white backdrop-blur-sm">
-                  Sold Out
-                </span>
-              )}
+          {/* Top accent bar */}
+          <div className="h-1 bg-gradient-to-r from-primary to-primary-light" />
+
+          <div className="p-5">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-xs font-medium text-primary-light mb-1">
+                  {event.genre}
+                </p>
+                <h3 className="text-base font-semibold leading-snug truncate">
+                  {event.name}
+                </h3>
+                <p className="text-sm text-muted mt-0.5">{event.artist}</p>
+              </div>
+
+              {/* Status */}
+              <div className="shrink-0">
+                {event.status === "on-sale" && (
+                  <span className="rounded-md bg-success/10 px-2 py-1 text-[11px] font-medium text-success">
+                    On Sale
+                  </span>
+                )}
+                {event.status === "few-left" && (
+                  <span className="rounded-md bg-amber-500/10 px-2 py-1 text-[11px] font-medium text-amber-400">
+                    Few Left
+                  </span>
+                )}
+                {event.status === "sold-out" && (
+                  <span className="rounded-md bg-zinc-500/10 px-2 py-1 text-[11px] font-medium text-zinc-500">
+                    Sold Out
+                  </span>
+                )}
+              </div>
             </div>
-            {/* Price Range */}
-            <div className="absolute bottom-3 left-3">
-              <span className="rounded-full bg-black/60 px-3 py-1 text-sm font-semibold text-white backdrop-blur-sm">
-                ${event.priceRange.min} — ${event.priceRange.max}
+
+            <div className="mt-4 flex items-center gap-4 text-xs text-muted">
+              <span className="flex items-center gap-1.5">
+                <Calendar className="h-3 w-3" />
+                {formatDate(event.date)} &middot; {event.time}
+              </span>
+              <span className="flex items-center gap-1.5">
+                <MapPin className="h-3 w-3" />
+                {event.venue.name}
               </span>
             </div>
-          </div>
 
-          {/* Info */}
-          <div className="p-5">
-            <h3 className="text-lg font-bold leading-tight group-hover:text-primary-light transition-colors">
-              {event.name}
-            </h3>
-            <p className="mt-1 text-sm font-medium text-primary-light">
-              {event.artist}
-            </p>
-
-            <div className="mt-4 flex flex-col gap-2 text-sm text-muted">
-              <div className="flex items-center gap-2">
-                <Calendar className="h-3.5 w-3.5" />
-                <span>{formatDate(event.date)}</span>
-                <Clock className="ml-2 h-3.5 w-3.5" />
-                <span>{event.time}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <MapPin className="h-3.5 w-3.5" />
-                <span>
-                  {event.venue.name} &middot; {event.venue.city},{" "}
-                  {event.venue.state}
+            {!isSoldOut && (
+              <div className="mt-4 flex items-center justify-between border-t border-border pt-3">
+                <span className="text-sm font-semibold">
+                  ${event.priceRange.min} &ndash; ${event.priceRange.max}
                 </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Music className="h-3.5 w-3.5" />
-                <span>{event.genre}</span>
-              </div>
-            </div>
-
-            {event.status !== "sold-out" && (
-              <div className="mt-4 flex items-center justify-between">
-                <span className="text-xs text-muted">
-                  Choose your seats
-                </span>
-                <span className="rounded-full bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary-light transition-colors group-hover:bg-primary group-hover:text-white">
-                  Get Tickets →
+                <span className="text-xs font-medium text-primary-light group-hover:text-primary transition-colors">
+                  Get Tickets &rarr;
                 </span>
               </div>
             )}

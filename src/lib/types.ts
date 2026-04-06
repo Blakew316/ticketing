@@ -18,27 +18,15 @@ export interface Venue {
   city: string;
   state: string;
   capacity: number;
-  sections: Section[];
+  rows: VenueRow[];
 }
 
-export interface Section {
-  id: string;
-  name: string;
-  type: "floor" | "lower" | "upper" | "vip" | "box";
-  color: string;
-  price: number;
-  rows: Row[];
-  /** SVG path data for the section shape */
-  path: string;
-  /** Label position */
-  labelX: number;
-  labelY: number;
-}
-
-export interface Row {
+export interface VenueRow {
   id: string;
   label: string;
   seats: Seat[];
+  price: number;
+  tier: "vip" | "premium" | "standard" | "balcony";
 }
 
 export interface Seat {
@@ -54,12 +42,11 @@ export interface CartItem {
   date: string;
   time: string;
   venue: string;
-  sectionName: string;
-  sectionType: string;
   rowLabel: string;
   seatNumber: number;
   seatId: string;
   price: number;
+  tier: string;
 }
 
 export interface TicketOrder {

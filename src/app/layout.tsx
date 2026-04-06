@@ -5,7 +5,7 @@ import Header from "@/components/ui/Header";
 export const metadata: Metadata = {
   title: "StagePass — Concert Tickets",
   description:
-    "Find and book the best seats for live concerts, festivals, and events. Interactive seat selection with real-time availability.",
+    "Find and book the best seats for live concerts, festivals, and events.",
 };
 
 export default function RootLayout({
@@ -15,16 +15,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="h-full antialiased">
-      <body className="min-h-full flex flex-col" style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}>
+      <body
+        className="min-h-full flex flex-col"
+        style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}
+      >
         <Header />
         <main className="flex-1">{children}</main>
-        <footer className="border-t border-border bg-surface py-8">
+        <footer className="border-t border-border py-6">
           <div className="mx-auto max-w-7xl px-4 sm:px-6">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              <p className="text-sm text-muted">
-                &copy; 2026 StagePass. All rights reserved.
-              </p>
-              <div className="flex gap-6 text-sm text-muted">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-zinc-600">
+              <p>&copy; 2026 StagePass. All rights reserved.</p>
+              <div className="flex gap-5">
                 <span>Terms</span>
                 <span>Privacy</span>
                 <span>Support</span>
